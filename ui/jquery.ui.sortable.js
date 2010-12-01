@@ -143,6 +143,8 @@ $.widget("ui.sortable", $.ui.mouse, {
 
 		//Get the next scrolling parent
 		this.scrollParent = this.helper.scrollParent();
+		//Get Scroll Parent for jScrollPane if used
+		if(this.helper.parents('.jspScrollable')[0]) this.scrollParent = this.helper.parents('.jspScrollable');
 
 		//The element's absolute position on the page minus margins
 		this.offset = this.currentItem.offset();
@@ -249,16 +251,33 @@ $.widget("ui.sortable", $.ui.mouse, {
 		if(this.options.scroll) {
 			var o = this.options, scrolled = false;
 			if(this.scrollParent[0] != document && this.scrollParent[0].tagName != 'HTML') {
+			  var jsp = this.scrollParent.data('jsp')
+        
+				if(jsp) {
+					
+					if((this.overflowOffset.top + this.scrollParent.height()) - event.pageY < o.scrollSensitivity)
+					 jsp.scrollToY( scrolled = jsp.getContentPositionY() + o.scrollSpeed );
+					else if(event.pageY - this.overflowOffset.top < o.scrollSensitivity)
+					 jsp.scrollToY( scrolled = jsp.getContentPositionY() - o.scrollSpeed );
 
-				if((this.overflowOffset.top + this.scrollParent[0].offsetHeight) - event.pageY < o.scrollSensitivity)
-					this.scrollParent[0].scrollTop = scrolled = this.scrollParent[0].scrollTop + o.scrollSpeed;
-				else if(event.pageY - this.overflowOffset.top < o.scrollSensitivity)
-					this.scrollParent[0].scrollTop = scrolled = this.scrollParent[0].scrollTop - o.scrollSpeed;
+					if((this.overflowOffset.left + jsp.getContentPane().width()) - event.pageX < o.scrollSensitivity)
+						jsp.scrollToX( scrolled = jsp.getContentPositionX() + o.scrollSpeed );
+					else if(event.pageX - this.overflowOffset.left < o.scrollSensitivity)
+						jsp.scrollToX( scrolled = jsp.getContentPositionX() - o.scrollSpeed );
+						
+				} else {
+					
+					if((this.overflowOffset.top + this.scrollParent[0].offsetHeight) - event.pageY < o.scrollSensitivity)
+						this.scrollParent[0].scrollTop = scrolled = this.scrollParent[0].scrollTop + o.scrollSpeed;
+					else if(event.pageY - this.overflowOffset.top < o.scrollSensitivity)
+						this.scrollParent[0].scrollTop = scrolled = this.scrollParent[0].scrollTop - o.scrollSpeed;
 
-				if((this.overflowOffset.left + this.scrollParent[0].offsetWidth) - event.pageX < o.scrollSensitivity)
-					this.scrollParent[0].scrollLeft = scrolled = this.scrollParent[0].scrollLeft + o.scrollSpeed;
-				else if(event.pageX - this.overflowOffset.left < o.scrollSensitivity)
-					this.scrollParent[0].scrollLeft = scrolled = this.scrollParent[0].scrollLeft - o.scrollSpeed;
+					if((this.overflowOffset.left + this.scrollParent[0].offsetWidth) - event.pageX < o.scrollSensitivity)
+						this.scrollParent[0].scrollLeft = scrolled = this.scrollParent[0].scrollLeft + o.scrollSpeed;
+					else if(event.pageX - this.overflowOffset.left < o.scrollSensitivity)
+						this.scrollParent[0].scrollLeft = scrolled = this.scrollParent[0].scrollLeft - o.scrollSpeed;
+						
+				}
 
 			} else {
 
